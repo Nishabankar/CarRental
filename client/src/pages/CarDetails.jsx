@@ -42,7 +42,7 @@ const CartDetails = () => {
                         </div>
                         <hr className='border-borderColor my-6' />
 
-                        <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
+                        <div className='grid grid-cols-4 sm:grid-cols-4 gap-4'>
                             {[
                                 { icon: assets.users_icon,text: `${car.seating_capacity} Seats`},
                                 { icon: assets.fuel_icon, text: car.fuel_type },

@@ -1,12 +1,74 @@
 import React from 'react'
 import Title from '../components/Title'
 import { assets, dummyCarData } from '../assets/assets'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CarCard from '../components/CarCard'
+import { useSearchParams } from 'react-router-dom'
+import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 const Car = () => {
 
+
+    // getting serach params from url
+
+    const [ searchParams ] = useSearchParams()
+    const pickupLocation = searchParams.get( 'pickupLocation' )
+    const pickupDate = searchParams.get( 'pickupDate' )
+    const returnDate = searchParams.get( 'returnDate' )
+
+    const {cars , axios } = useAppContext()
     const [ input, setInput ] = useState( '' )
+
+    const isSerachData = pickupLocation && pickupDate && returnDate
+    const [ filteredCars, setFilteredCars ] = useState( [] )
+
+
+     const applyFilter = async () =>{
+         if ( input === '' ) {
+            setFilteredCars( cars )
+             return null
+         }
+
+         const filtered = cars.slice().filter( ( car ) => {
+             return   car.brand.toLowerCase().includes(input.toLowerCase())
+             || car.model.toLowerCase().includes( input.toLowerCase() )
+                 || car.category.toLowerCase().includes( input.toLowerCase() )
+                 || car.transmission.toLowerCase().includes( input.toLowerCase() )
+         } )
+         setFilteredCars(filtered)
+    }
+
+    const searchCarAvailability = async () => {
+        try {
+          const { data } = await axios.post('/api/bookings/check-availability', {
+            location: pickupLocation,
+            pickupDate,
+            returnDate
+          });
+
+          if (data.success) {
+            setFilteredCars(data.availableCars || []);
+            if ((data.availableCars || []).length === 0) {
+              toast('No cars available');
+            }
+          }
+        } catch (error) {
+          toast.error('Failed to fetch available cars');
+          setFilteredCars([]);
+        }
+      }
+
+    useEffect(() => {
+         isSerachData && searchCarAvailability()
+    }, [] )
+
+
+    useEffect(() => {
+        cars.length > 0 && !isSerachData && applyFilter()
+   }, [input, cars] )
+
+
 
     return (
         <div>
@@ -18,7 +80,7 @@ const Car = () => {
 
                     <img src={assets.search_icon} alt="" className='w-4.5 h-4.5 mr-2' />
 
-                    <input onClick={(e) => setInput(e.target.value)}
+                    <input onChange={(e) => setInput(e.target.value)}
                         value={input} type="text" placeholder='Search by make, model, or features' className='w-full h-full outline-none text-gray-500' />
 
                     <img src={assets.filter_icon} alt="" className='w-4.5 h-4.5 ml-2' />
@@ -27,10 +89,10 @@ const Car = () => {
 
 
             <div className='px-6 md:px-16 lg:px-24 cl:px-32 mt-10'>
-                <p className='text-gray-500 xl:px-20 max-w-7xl mx-auto'>Showing {dummyCarData.length} cars</p>
+                <p className='text-gray-500 xl:px-20 max-w-7xl mx-auto'>Showing {filteredCars.length} cars</p>
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-4 xl:px-20 max-w-7xl mx-auto'>
-                    {dummyCarData.map( ( car, index ) => (
+                    {filteredCars.map( ( car, index ) => (
                         <div key={index}>
                             <CarCard car={car}/>
                         </div>
