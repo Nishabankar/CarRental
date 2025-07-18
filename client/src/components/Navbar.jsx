@@ -4,6 +4,7 @@ import {Link, useLocation, useNavigate} from 'react-router-dom'
 import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
+import {motion} from 'motion/react'
 
 const Navbar = () => {
 
@@ -29,10 +30,14 @@ const Navbar = () => {
     }
 
     return (
-        <div className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 text-gray-600 border-b border-borderColor  relative transition-all ${location.pathname === "/" && "bg-light"}`}>
+        <motion.div
+            initial={{ y: -20, opcaity: 0 }}
+            animate={{ y: 0, opcaity: 1 }}
+            transition={{duration: 0.5}}
+            className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 text-gray-600 border-b border-borderColor  relative transition-all ${ location.pathname === "/" && "bg-light" }`}>
 
             <Link to='/'>
-            <img src={assets.logo} alt="logo" className="h-8"/>
+            <motion.img whileHover={{scale: 1.05}} src={assets.logo} alt="logo" className="h-8"/>
             </Link>
 
             <div className={`max-sm:fixed max-sm:h-screen max-sm:w-full max-sm:top-16 max-sm:border-t borderColor right-0 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 max-sm:p-4 transition-all duration-300 z-50  ${ location.pathname === "/" ? "bg-light" : "bg-white"} ${open ?"max-sm:translate-x-0": "max-sm:translate-x-full"}`}>
@@ -61,7 +66,7 @@ const Navbar = () => {
                 <img src={open ? assets.close_icon : assets.menu_icon} alt="menu"/>
             </button>
 
-        </div>
+        </motion.div>
     )
 }
 
