@@ -52,16 +52,17 @@ export const createBooking = async ( req, res ) => {
         const carData = await Car.findById( car )
 
         // Calculate price based on pickupdate and returnDate
-        const picked = new Date( pickupDate );
-        const returned = new Date( returnDate );
-        const noOfDays = Math.ceil( ( returned - picked ) / 100 * 60 * 60 * 24 )
-        const price = carData.pricePerDay * noOfDays;
+        const picked = new Date(pickupDate);
+       const returned = new Date(returnDate);
+       const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24));
+       const price = carData.pricePerDay * noOfDays;
 
-        await Booking.create( { car, owner: carData.owner, user: _id, pickupDate, returnDate, price } )
+          await Booking.create({ car, owner: carData.owner, user: _id, pickupDate, returnDate, price });
 
-        res.json( { success: true, message:"Booking Created"})
+         res.json({ success: true, message: "Booking Created", price, noOfDays });
 
-    } catch (error) {
+
+       } catch (error) {
         console.log( error.message );
         res.json({success: false, message: error.message})
     }
