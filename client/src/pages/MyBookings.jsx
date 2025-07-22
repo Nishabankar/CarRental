@@ -1,33 +1,40 @@
 import React from 'react'
-import { useState , useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { assets } from '../assets/assets'
 import Title from '../components/Title'
-import {useAppContext} from '../context/AppContext'
+import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 import { motion } from 'motion/react'
+import { useNavigate } from 'react-router-dom';
+import { Pen } from 'lucide-react';
+
+
 
 const MyBookings = () => {
 
-    const {axios, user, currency} = useAppContext()
+    const navigate = useNavigate();
+
+
+    const { axios, user, currency } = useAppContext()
     const [ bookings, setBooking ] = useState( [] )
 
 
     const fetchMyBooking = async () => {
-      try {
-          const { data } = await axios.get( '/api/bookings/user' )
-          if ( data.success ) {
-              setBooking(data.bookings)
-          } else {
-              toast.error(data.message)
-          }
-      } catch (error) {
-        toast.error(error.message)
-      }
+        try {
+            const { data } = await axios.get( '/api/bookings/user' )
+            if ( data.success ) {
+                setBooking( data.bookings )
+            } else {
+                toast.error( data.message )
+            }
+        } catch ( error ) {
+            toast.error( error.message )
+        }
     }
 
     useEffect( () => {
-      user &&  fetchMyBooking()
-    }, [user])
+        user && fetchMyBooking()
+    }, [ user ] )
 
     return (
         <motion.div
@@ -43,18 +50,18 @@ const MyBookings = () => {
 
 
             <div>
-                {bookings.map((booking, index ) => (
+                {bookings.map( ( booking, index ) => (
                     <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.4 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.4 }}
 
                         key={booking._id} className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-borderColor rounded-lg mt-5 first:mt-12">
 
                         {/* Car Image + Info  */}
                         <div className='md:col-span-1'>
                             <div className='rounded-md overflow-hidden mb-3'>
-                                <img src={booking.car.image} alt="" className='w-full h-auto aspect-video object-cover'/>
+                                <img src={booking.car.image} alt="" className='w-full h-auto aspect-video object-cover' />
                             </div>
                             <p className='text-lg font-medium mt-2'>{booking.car.brand}{booking.car.model}</p>
 
@@ -64,18 +71,21 @@ const MyBookings = () => {
                         {/* Booking Info */}
 
                         <div className='md:col-span-2'>
-
                             <div className='flex items-center gap-2'>
                                 <p>Booking #{index + 1}</p>
-                                <p className={`px-3 py-1 text-xs rounded-full ${booking.status === 'confirmed' ? 'bg-green-400/15 text-green-600' : 'bg-red-400/15 text-red-600'}`}>{booking.status}</p>
+                                <p className={`px-3 py-1 text-xs rounded-full ${ booking.status === 'confirmed' ? 'bg-green-400/15 text-green-600' : 'bg-red-400/15 text-red-600' }`}>{booking.status}</p>
                             </div>
-
 
                             <div className='flex items-start gap-2 mt-3'>
                                 <img src={assets.calendar_icon_colored} alt="" className='w-4 h-4 mt-1' />
                                 <div>
                                     <p className='text-gray-500'>Rental Period</p>
-                                    <p>{booking.pickupDate.split('T')[0]} To {booking.returnDate.split('T')[0]} </p>
+                                    <div className='flex items-center gap-2'>
+                                        <p>{booking.pickupDate.split( 'T' )[ 0 ]} To {booking.returnDate.split( 'T' )[ 0 ]}</p>
+                                        <Pen className="w-4 h-4 cursor-pointer text-gray-500 hover:text-primary"
+                                        onClick={() => navigate( `/edit-booking/${ booking._id }` )} />
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -94,13 +104,13 @@ const MyBookings = () => {
                             <div className='text-sm text-gray-500 text-right'>
                                 <p>Total Price</p>
                                 <h1 className='text-2xl font-semibold text-primary'> {currency}{booking.price}</h1>
-                                <p>Booked on {booking.createdAt.split('T')[0]}</p>
+                                <p>Booked on {booking.createdAt.split( 'T' )[ 0 ]}</p>
                             </div>
                         </div>
 
                     </motion.div>
 
-                ))}
+                ) )}
             </div>
         </motion.div>
     )

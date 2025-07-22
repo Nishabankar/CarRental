@@ -4,9 +4,12 @@ import { assets } from '../../assets/assets'
 import Title from '../../components/owner/Title'
 import {useAppContext}  from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import { Pen } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 
 const ManageCars = () => {
+    const navigate = useNavigate();
 
     const { isOwner, axios, currency } = useAppContext()
 
@@ -106,6 +109,8 @@ const ManageCars = () => {
                                 </td>
 
                                 <td className='flex items-center p-3'>
+                                     <Pen className="w-4 h-4 cursor-pointer text-gray-500 hover:text-primary"
+                                       onClick={() => navigate(`/owner/edit-car/${car._id}`)}                                      />
 
                                     <img onClick={()=> toggleAvailability(car._id)} src={car.isAvaliable ? assets.eye_close_icon : assets.eye_icon} alt="" className='cursor-pointer' />
 

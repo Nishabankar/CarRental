@@ -1,9 +1,10 @@
 import User from "../models/User.js";
-import fs from "fs";
 import imagekit from "../configs/imageKit.js";
 import Car from "../models/Car.js";
 import Booking from "../models/Booking.js";
 import mongoose from 'mongoose';
+import fs from 'fs/promises';
+
 
 
 
@@ -119,6 +120,69 @@ export const deleteCar = async ( req, res ) => {
      }
 }
 
+// GET /api/owner/car/:id
+export const getCarById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const car = await Car.findById(id);
+
+      if (!car) {
+        return res.status(404).json({ success: false, message: "Car not found" });
+      }
+
+      res.json(car);
+    } catch (error) {
+      console.error("Error fetching car:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch car" });
+    }
+  };
+
+
+
+ // API to update  car  information
+ // PUT /api/cars/:id
+
+ 
+ export const editCar = async (req, res) => {
+   try {
+     const { id } = req.params;
+     const carData = JSON.parse(req.body.carData);
+
+     if (req.file) {
+       const fileBuffer = await fs.readFile(req.file.path);
+
+       const response = await imagekit.upload({
+         file: fileBuffer,
+         fileName: req.file.originalname,
+         folder: '/cars'
+       });
+
+       const optimizedImageUrl = imagekit.url({
+         path: response.filePath,
+         transformation: [
+           { width: '1280' },
+           { quality: 'auto' },
+           { format: 'webp' }
+         ]
+       });
+
+       carData.image = optimizedImageUrl;
+
+       await fs.unlink(req.file.path); // ✅ properly deletes temp file
+     }
+
+     const updatedCar = await Car.findByIdAndUpdate(id, carData, { new: true });
+
+     if (!updatedCar) {
+       return res.status(404).json({ error: 'Car not found' });
+     }
+
+     res.status(200).json(updatedCar);
+   } catch (error) {
+     console.error('Error updating car:', error);
+     res.status(500).json({ error: 'Internal Server Error' });
+   }
+ };
 
 // API to get Dashboard Data
 export const getDashboardData = async ( req, res ) => {

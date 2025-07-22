@@ -103,6 +103,7 @@ export const getOwnerBookings = async ( req, res ) => {
 
 
 
+
 // API to change  booking status
 export const changeBookingstatus = async ( req, res ) => {
     try {
@@ -121,3 +122,49 @@ export const changeBookingstatus = async ( req, res ) => {
         res.json({success: false, message: error.message})
     }
 }
+
+
+// GET /api/bookings/:id - Get booking by ID
+export const getBookingById = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+        res.status(200).json({ success: true, data: booking });
+    } catch (error) {
+        console.error("Get Booking Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
+// PUT /api/bookings/:id
+export const updateBooking = async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+        const { pickupDate, returnDate } = req.body;
+
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+
+        const picked = new Date(pickupDate);
+        const returned = new Date(returnDate);
+        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24));
+        const carData = await Car.findById(booking.car);
+        const price = carData.pricePerDay * noOfDays;
+
+        booking.pickupDate = pickupDate;
+        booking.returnDate = returnDate;
+        booking.price = price;
+
+        await booking.save();
+
+        res.status(200).json({ success: true, data: booking });
+    } catch (error) {
+        console.error("Update Booking Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};

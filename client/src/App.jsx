@@ -14,6 +14,8 @@ import Dashboard from './pages/owner/Dashboard'
 import Login from './components/Login'
 import {Toaster} from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
+import EditBooking from './pages/EditBooking'
+import EditCar from './pages/owner/EditCar'
 
 const App = () => {
   const {showLogin} = useAppContext()
@@ -31,6 +33,10 @@ const App = () => {
         <Route path='/car-details/:id' element={<CartDetails />} />
         <Route path='/cars' element={<Cars />} />
         <Route path='/my-bookings' element={<MyBookings />} />
+        <Route path="/edit-booking/:id" element={<EditBooking />} />
+
+
+
 
         {/* Nested Routes for Owner Dashboard */}
         <Route path='/owner' element={<Layout />}>
@@ -38,6 +44,7 @@ const App = () => {
           <Route path='add-car' element={<AddCar />} />
           <Route path='manage-cars' element={<ManageCars />} />
           <Route path='manage-bookings' element={<ManageBookings />} />
+          <Route path="edit-car/:id" element={<EditCar />} />
         </Route>
       </Routes>
 
